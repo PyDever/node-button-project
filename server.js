@@ -16,10 +16,27 @@ app.set('view engine', 'handlebars')
 // make express use the public folder 
 app.use(express.static('public'))
 
-app.get('/index', function (req, res) {
+app.get('/', function (req, res) {
 
-	// request code here
-	res.render('home', {price: 20})
+	var bitcoinUnitPrice = new Number()
+
+	// url for the GET request
+	var url = "https://api.coindesk.com/v1/bpi/currentprice.json"
+
+	http.get(url, function (response) {
+		response.setEncoding('utf-8')
+        var body = ''
+        response.on('data', function(d) {
+            body += d
+        })
+
+        response.on('end', function(){
+            var parsed = JSON.parse(body)
+
+            bitcoinUnitPrice = parsed.bpi.usd.rate
+            res.render('home', {price: bitcoinUnitPrice})
+         })
+	})
 })
 
 // listen in on port 3000 for incoming requests
